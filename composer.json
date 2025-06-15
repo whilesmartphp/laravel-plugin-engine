@@ -1,0 +1,47 @@
+{
+    "name": "trakli/plugin-engine",
+    "description": "Plugin system for Trakli applications",
+    "type": "library",
+    "license": "proprietary",
+    "autoload": {
+        "psr-4": {
+            "Trakli\\PluginEngine\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Trakli\\PluginEngine\\Tests\\": "tests/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Trakli Team",
+            "email": "dev@trakli.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "illuminate/support": "^10.0",
+        "illuminate/console": "^10.0",
+        "illuminate/filesystem": "^10.0",
+        "illuminate/database": "^10.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^8.0",
+        "phpunit/phpunit": "^10.0",
+        "mockery/mockery": "^1.5"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Trakli\\PluginEngine\\Providers\\PluginServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-html coverage"
+    }
+}

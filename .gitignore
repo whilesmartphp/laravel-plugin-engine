@@ -1,0 +1,19 @@
+# Dependencies
+/vendor/
+/node_modules/
+
+# IDE
+/.idea/
+/.vscode/
+
+# PHPUnit
+/coverage/
+.phpunit.cache/
+.phpunit.result.cache
+
+# Code quality
+.php-cs-fixer.cache
+.phpcs-cache/
+
+# Logs
+*.log
