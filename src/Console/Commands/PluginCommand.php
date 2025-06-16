@@ -1,9 +1,9 @@
 <?php
 
-namespace Trakli\PluginEngine\Console\Commands;
+namespace WhileSmart\LaravelPluginEngine\Console\Commands;
 
 use Illuminate\Console\Command;
-use Trakli\PluginEngine\Services\PluginManager;
+use WhileSmart\LaravelPluginEngine\Services\PluginManager;
 
 abstract class PluginCommand extends Command
 {

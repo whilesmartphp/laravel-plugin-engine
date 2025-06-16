@@ -1,6 +1,6 @@
 <?php
 
-namespace Trakli\PluginEngine\Tests\Stubs\Models;
+namespace WhileSmart\LaravelPluginEngine\Tests\Stubs\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;

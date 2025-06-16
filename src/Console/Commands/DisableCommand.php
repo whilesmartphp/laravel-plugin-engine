@@ -1,6 +1,6 @@
 <?php
 
-namespace Trakli\PluginEngine\Console\Commands;
+namespace WhileSmart\LaravelPluginEngine\Console\Commands;
 
 class DisableCommand extends PluginCommand
 {

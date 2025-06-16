@@ -1,6 +1,6 @@
 <?php
 
-namespace Trakli\PluginEngine\Services;
+namespace WhileSmart\LaravelPluginEngine\Services;
 
 use Composer\Autoload\ClassLoader;
 use Illuminate\Console\OutputStyle;

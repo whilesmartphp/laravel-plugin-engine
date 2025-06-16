@@ -1,11 +1,11 @@
 <?php
 
-namespace Trakli\PluginEngine\Tests\Feature\Plugin;
+namespace WhileSmart\LaravelPluginEngine\Tests\Feature\Plugin;
 
 use Illuminate\Support\Facades\File;
-use Trakli\PluginEngine\Services\PluginManager;
-use Trakli\PluginEngine\Tests\Stubs\Models\User;
-use Trakli\PluginEngine\Tests\TestCase;
+use WhileSmart\LaravelPluginEngine\Services\PluginManager;
+use WhileSmart\LaravelPluginEngine\Tests\Stubs\Models\User;
+use WhileSmart\LaravelPluginEngine\Tests\TestCase;
 
 class PluginManagerTest extends TestCase
 {

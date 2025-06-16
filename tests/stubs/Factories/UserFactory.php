@@ -1,10 +1,10 @@
 <?php
 
-namespace Trakli\PluginEngine\Tests\Stubs\Factories;
+namespace WhileSmart\LaravelPluginEngine\Tests\Stubs\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
-use Trakli\PluginEngine\Tests\Stubs\Models\User;
+use WhileSmart\LaravelPluginEngine\Tests\Stubs\Models\User;
 
 class UserFactory extends Factory
 {

@@ -1,23 +1,23 @@
 {
-    "name": "trakli/plugin-engine",
-    "description": "Plugin system for Trakli applications",
+    "name": "whilesmart/laravel-plugin-engine",
+    "description": "Laravel plugin engine for WhileSmart applications",
     "type": "library",
     "license": "proprietary",
     "autoload": {
         "psr-4": {
-            "Trakli\\PluginEngine\\": "src/"
+            "WhileSmart\\LaravelPluginEngine\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Trakli\\PluginEngine\\Tests\\": "tests/",
-            "Trakli\\PluginEngine\\Tests\\Stubs\\": "tests/stubs/"
+            "WhileSmart\\LaravelPluginEngine\\Tests\\": "tests/",
+            "WhileSmart\\LaravelPluginEngine\\Tests\\Stubs\\": "tests/stubs/"
         }
     },
     "authors": [
         {
-            "name": "Trakli Team",
-            "email": "dev@trakli.com"
+            "name": "WhileSmart Engineering Team",
+            "email": "engineering@whilesmart.com"
         }
     ],
     "require": {
@@ -38,7 +38,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Trakli\\PluginEngine\\Providers\\PluginServiceProvider"
+                "WhileSmart\\LaravelPluginEngine\\Providers\\PluginServiceProvider"
             ]
         }
     },

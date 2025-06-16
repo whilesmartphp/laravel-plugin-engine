@@ -1,15 +1,9 @@
 <?php
 
-namespace Trakli\PluginEngine\Providers;
+namespace WhileSmart\LaravelPluginEngine\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Trakli\PluginEngine\Console\Commands\DisableCommand;
-use Trakli\PluginEngine\Console\Commands\DiscoverCommand;
-use Trakli\PluginEngine\Console\Commands\EnableCommand;
-use Trakli\PluginEngine\Console\Commands\InfoCommand;
-use Trakli\PluginEngine\Console\Commands\InstallCommand;
-use Trakli\PluginEngine\Console\Commands\ListCommand;
-use Trakli\PluginEngine\Services\PluginManager;
+use WhileSmart\LaravelPluginEngine\Services\PluginManager;
 
 class PluginServiceProvider extends ServiceProvider
 {
@@ -19,12 +13,12 @@ class PluginServiceProvider extends ServiceProvider
      * @var array
      */
     protected $commands = [
-        DisableCommand::class,
-        DiscoverCommand::class,
-        EnableCommand::class,
-        InfoCommand::class,
-        InstallCommand::class,
-        ListCommand::class,
+        \WhileSmart\LaravelPluginEngine\Console\Commands\DisableCommand::class,
+        \WhileSmart\LaravelPluginEngine\Console\Commands\DiscoverCommand::class,
+        \WhileSmart\LaravelPluginEngine\Console\Commands\EnableCommand::class,
+        \WhileSmart\LaravelPluginEngine\Console\Commands\InfoCommand::class,
+        \WhileSmart\LaravelPluginEngine\Console\Commands\InstallCommand::class,
+        \WhileSmart\LaravelPluginEngine\Console\Commands\ListCommand::class,
     ];
 
     /**

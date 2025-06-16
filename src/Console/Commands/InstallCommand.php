@@ -1,6 +1,6 @@
 <?php
 
-namespace Trakli\PluginEngine\Console\Commands;
+namespace WhileSmart\LaravelPluginEngine\Console\Commands;
 
 use Illuminate\Support\Str;
 use Symfony\Component\Process\Process;

@@ -1,9 +1,9 @@
 <?php
 
-namespace Trakli\PluginEngine\Tests\Feature\Plugin;
+namespace WhileSmart\LaravelPluginEngine\Tests\Feature\Plugin;
 
 use Illuminate\Support\Facades\File;
-use Trakli\PluginEngine\Tests\TestCase;
+use WhileSmart\LaravelPluginEngine\Tests\TestCase;
 
 class PluginCommandsTest extends TestCase
 {

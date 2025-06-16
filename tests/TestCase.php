@@ -1,6 +1,6 @@
 <?php
 
-namespace Trakli\PluginEngine\Tests;
+namespace WhileSmart\LaravelPluginEngine\Tests;
 
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -11,8 +11,8 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use Laravel\Sanctum\SanctumServiceProvider;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
-use Trakli\PluginEngine\Providers\PluginServiceProvider;
-use Trakli\PluginEngine\Tests\Stubs\Models\User;
+use WhileSmart\LaravelPluginEngine\Providers\PluginServiceProvider;
+use WhileSmart\LaravelPluginEngine\Tests\Stubs\Models\User;
 
 /**
  * @property Application $app
@@ -43,7 +43,7 @@ class TestCase extends OrchestraTestCase
         $this->app->instance('path.plugins', $this->pluginsPath);
 
         Factory::guessFactoryNamesUsing(function (string $modelName) {
-            return 'Trakli\\PluginEngine\\Tests\\Stubs\\Factories\\'.class_basename($modelName).'Factory';
+            return 'WhileSmart\\LaravelPluginEngine\\Tests\\Stubs\\Factories\\'.class_basename($modelName).'Factory';
         });
 
         Schema::create('users', function (Blueprint $table) {
@@ -115,8 +115,8 @@ class TestCase extends OrchestraTestCase
             'name' => 'Test Plugin '.ucfirst($pluginId),
             'description' => 'Test plugin description',
             'version' => '1.0.0',
-            'namespace' => 'Trakli\\'.ucfirst($pluginId).'Plugin',
-            'provider' => 'Trakli\\'.ucfirst($pluginId).'Plugin\\'.ucfirst($pluginId).'ServiceProvider',
+            'namespace' => 'WhileSmart\\'.ucfirst($pluginId).'Plugin',
+            'provider' => 'WhileSmart\\'.ucfirst($pluginId).'Plugin\\'.ucfirst($pluginId).'ServiceProvider',
             'enabled' => true,
         ];
 

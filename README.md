@@ -1,4 +1,7 @@
-# Trakli Plugin Engine
+# Laravel Plugin Engine
+
+[![Tests](https://github.com/whilesmart/laravel-plugin-engine/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/whilesmart/laravel-plugin-engine/actions/workflows/tests.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 A flexible and powerful plugin system for Laravel applications.
 
@@ -16,16 +19,22 @@ A flexible and powerful plugin system for Laravel applications.
 1. Install the package via Composer:
 
 ```bash
-composer require trakli/plugin-engine
+composer require whilesmart/laravel-plugin-engine
 ```
 
 2. Publish the configuration file (optional):
 
 ```bash
-php artisan vendor:publish --provider="Trakli\PluginEngine\Providers\PluginServiceProvider" --tag=config
+php artisan vendor:publish --provider="WhileSmart\LaravelPluginEngine\Providers\PluginServiceProvider" --tag=config
 ```
 
 ## Configuration
+
+Publish the configuration file:
+
+```bash
+php artisan vendor:publish --provider="WhileSmart\LaravelPluginEngine\Providers\PluginServiceProvider" --tag=config
+```
 
 Edit the `config/plugins.php` file to configure the plugin system:
 
@@ -119,12 +128,12 @@ plugins/
 
 The plugin system dispatches several events that you can listen for:
 
-- `Trakli\PluginEngine\Events\PluginEnabling` - Fired before a plugin is enabled
-- `Trakli\PluginEngine\Events\PluginEnabled` - Fired after a plugin is enabled
-- `Trakli\PluginEngine\Events\PluginDisabling` - Fired before a plugin is disabled
-- `Trakli\PluginEngine\Events\PluginDisabled` - Fired after a plugin is disabled
-- `Trakli\PluginEngine\Events\PluginInstalled` - Fired after a plugin is installed
-- `Trakli\PluginEngine\Events\PluginDiscovered` - Fired when a plugin is discovered
+- `WhileSmart\PluginEngine\Events\PluginEnabling` - Fired before a plugin is enabled
+- `WhileSmart\PluginEngine\Events\PluginEnabled` - Fired after a plugin is enabled
+- `WhileSmart\PluginEngine\Events\PluginDisabling` - Fired before a plugin is disabled
+- `WhileSmart\PluginEngine\Events\PluginDisabled` - Fired after a plugin is disabled
+- `WhileSmart\PluginEngine\Events\PluginInstalled` - Fired after a plugin is installed
+- `WhileSmart\PluginEngine\Events\PluginDiscovered` - Fired when a plugin is discovered
 
 ## License
 
