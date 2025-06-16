@@ -30,16 +30,17 @@ class PluginManager
         $this->classLoader = require base_path('vendor/autoload.php');
         $this->output = $output ?? new OutputStyle(new ArrayInput([]), new NullOutput);
     }
-    
+
     /**
      * Check if a plugin is enabled
      */
     public function isPluginEnabled(string $pluginId): bool
     {
         $plugin = $this->findPlugin($pluginId);
+
         return $plugin && ($plugin['enabled'] ?? false) === true;
     }
-    
+
     /**
      * Enable a plugin by ID
      */
@@ -47,7 +48,7 @@ class PluginManager
     {
         return $this->setPluginEnabled($pluginId, true);
     }
-    
+
     /**
      * Disable a plugin by ID
      */
@@ -55,40 +56,41 @@ class PluginManager
     {
         return $this->setPluginEnabled($pluginId, false);
     }
-    
+
     /**
      * Set the enabled state of a plugin
      */
     protected function setPluginEnabled(string $pluginId, bool $enabled): bool
     {
         $plugin = $this->findPlugin($pluginId);
-        
+
         if (! $plugin) {
             return false;
         }
-        
-        $manifestPath = $plugin['path'] . '/plugin.json';
-        
+
+        $manifestPath = $plugin['path'].'/plugin.json';
+
         try {
             $manifest = json_decode(File::get($manifestPath), true, 512, JSON_THROW_ON_ERROR);
             $manifest['enabled'] = $enabled;
-            
+
             File::put(
                 $manifestPath,
                 json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
             );
-            
+
             // Update the cached plugin data
             $this->plugins = [];
             $this->discover();
-            
+
             return true;
         } catch (\Exception $e) {
-            Log::error("Failed to update plugin manifest: " . $e->getMessage(), [
+            Log::error('Failed to update plugin manifest: '.$e->getMessage(), [
                 'plugin' => $pluginId,
                 'path' => $manifestPath,
-                'exception' => $e
+                'exception' => $e,
             ]);
+
             return false;
         }
     }
@@ -109,11 +111,11 @@ class PluginManager
             // Check if plugin has an ID and it matches (case-insensitive)
             $pluginIdLower = strtolower($pluginId);
             $foundId = isset($p['id']) && strtolower($p['id']) === $pluginIdLower;
-            
+
             // Also check if the directory name matches (for invalid plugins without ID)
             $dirName = basename($p['path'] ?? '');
             $foundDir = strtolower($dirName) === $pluginIdLower;
-            
+
             return $foundId || $foundDir;
         });
     }
@@ -122,6 +124,7 @@ class PluginManager
     {
         if (! empty($this->plugins)) {
             Log::debug('Returning cached plugins');
+
             return collect($this->plugins);
         }
 
@@ -129,6 +132,7 @@ class PluginManager
 
         if (! is_dir($this->pluginsPath)) {
             Log::warning("Plugins directory not found: {$this->pluginsPath}");
+
             return collect();
         }
 
@@ -141,6 +145,7 @@ class PluginManager
 
             if (! $directory->isDir() || $directory->isDot()) {
                 Log::debug('Skipping non-directory or dot file', ['path' => $directory->getPathname()]);
+
                 continue;
             }
 
@@ -154,8 +159,9 @@ class PluginManager
                 $plugins[] = [
                     'path' => $pluginPath,
                     'error' => 'Plugin manifest not found',
-                    'enabled' => false
+                    'enabled' => false,
                 ];
+
                 continue;
             }
 
@@ -190,17 +196,18 @@ class PluginManager
     protected function loadPlugin(string $pluginPath): ?array
     {
         $manifestPath = $pluginPath.'/plugin.json';
-        
+
         try {
             $manifest = json_decode(File::get($manifestPath), true, 512, JSON_THROW_ON_ERROR);
-            
+
             if (! isset($manifest['id'])) {
                 $error = "Plugin manifest missing required 'id' field";
                 Log::error($error, ['path' => $manifestPath]);
+
                 return [
                     'path' => $pluginPath,
                     'error' => $error,
-                    'enabled' => false
+                    'enabled' => false,
                 ];
             }
 
@@ -211,15 +218,16 @@ class PluginManager
 
             return $plugin;
         } catch (\JsonException $e) {
-            $error = "Invalid JSON in plugin manifest: " . $e->getMessage();
+            $error = 'Invalid JSON in plugin manifest: '.$e->getMessage();
             Log::error($error, [
                 'path' => $manifestPath,
-                'exception' => $e
+                'exception' => $e,
             ]);
+
             return [
                 'path' => $pluginPath,
                 'error' => $error,
-                'enabled' => false
+                'enabled' => false,
             ];
         }
     }
@@ -227,71 +235,70 @@ class PluginManager
     /**
      * Validate a plugin's structure and return validation result
      *
-     * @param array $plugin The plugin data to validate
+     * @param  array  $plugin  The plugin data to validate
      * @return array{is_valid: bool, id: ?string, error: ?string} Validation result
      */
     public function validatePlugin(array $plugin): array
     {
-        if (!is_array($plugin)) {
+        if (! is_array($plugin)) {
             return ['is_valid' => false, 'id' => null, 'error' => 'Invalid plugin data'];
         }
-        
+
         if (isset($plugin['error'])) {
             return [
-                'is_valid' => false, 
-                'id' => $plugin['id'] ?? null, 
-                'error' => $plugin['error']
+                'is_valid' => false,
+                'id' => $plugin['id'] ?? null,
+                'error' => $plugin['error'],
             ];
         }
-        
+
         if (empty($plugin['id'])) {
             return [
-                'is_valid' => false, 
-                'id' => null, 
-                'error' => 'Plugin ID is missing'
+                'is_valid' => false,
+                'id' => null,
+                'error' => 'Plugin ID is missing',
             ];
         }
-        
+
         return [
             'is_valid' => true,
             'id' => $plugin['id'],
-            'error' => null
+            'error' => null,
         ];
     }
 
     public function registerPlugins()
     {
         $plugins = $this->discover();
-        
+
         foreach ($plugins as $plugin) {
             if (empty($plugin['enabled']) || empty($plugin['provider'])) {
                 continue;
             }
-            
+
             try {
                 // Normalize the plugin namespace
-                $pluginNamespace = rtrim($plugin['namespace'] ?? '', '\\') . '\\';
-                $pluginSrcPath = rtrim($plugin['path'], '/') . '/src';
-                
+                $pluginNamespace = rtrim($plugin['namespace'] ?? '', '\\').'\\';
+                $pluginSrcPath = rtrim($plugin['path'], '/').'/src';
 
-                if (is_dir($pluginSrcPath) && !empty($pluginNamespace)) {
+                if (is_dir($pluginSrcPath) && ! empty($pluginNamespace)) {
                     $this->classLoader->addPsr4($pluginNamespace, $pluginSrcPath);
                     // Force the autoloader to re-index
                     $this->classLoader->setUseIncludePath(true);
                 }
-                
+
                 if (class_exists($plugin['provider'])) {
                     $this->app->register($plugin['provider']);
                 } else {
                     Log::error("Plugin service provider class not found: {$plugin['provider']}", [
                         'plugin' => $plugin['id'] ?? 'unknown',
-                        'path' => $plugin['path'] ?? null
+                        'path' => $plugin['path'] ?? null,
                     ]);
                 }
             } catch (\Exception $e) {
-                Log::error("Failed to register plugin: " . $e->getMessage(), [
+                Log::error('Failed to register plugin: '.$e->getMessage(), [
                     'plugin' => $plugin['id'] ?? 'unknown',
-                    'exception' => $e
+                    'exception' => $e,
                 ]);
             }
         }

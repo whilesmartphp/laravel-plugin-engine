@@ -4,9 +4,8 @@ namespace Trakli\PluginEngine\Tests\Feature\Plugin;
 
 use Illuminate\Support\Facades\File;
 use Trakli\PluginEngine\Services\PluginManager;
-use Trakli\PluginEngine\Tests\TestCase;
 use Trakli\PluginEngine\Tests\Stubs\Models\User;
-
+use Trakli\PluginEngine\Tests\TestCase;
 
 class PluginManagerTest extends TestCase
 {
@@ -15,10 +14,10 @@ class PluginManagerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
-        $sourcePath = __DIR__ . '/../../../plugins/example';
+
+        $sourcePath = __DIR__.'/../../../plugins/example';
         $destPath = base_path('plugins/example');
-        
+
         if (File::isDirectory($destPath)) {
             File::deleteDirectory($destPath);
         }
@@ -27,7 +26,7 @@ class PluginManagerTest extends TestCase
         $this->pluginManager = new PluginManager($this->app);
         $this->pluginManager->registerPlugins();
     }
-    
+
     protected function resetExamplePluginState(): void
     {
         $manifestPath = "{$this->pluginsPath}/example/plugin.json";
@@ -120,7 +119,7 @@ EOT
     public function it_returns_null_for_nonexistent_plugin()
     {
         $plugin = $this->pluginManager->findPlugin('nonexistent');
-        
+
         $this->assertNull($plugin, 'Should return null for non-existent plugin');
     }
 
@@ -211,7 +210,7 @@ EOT
             'user_name' => $user->name,
         ]);
     }
-    
+
     /** @test */
     public function it_prevents_access_to_disabled_plugin_routes()
     {

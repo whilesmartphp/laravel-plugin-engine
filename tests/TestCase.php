@@ -2,17 +2,17 @@
 
 namespace Trakli\PluginEngine\Tests;
 
-use Illuminate\Support\Facades\File;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
+use Laravel\Sanctum\SanctumServiceProvider;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 use Trakli\PluginEngine\Providers\PluginServiceProvider;
-use Illuminate\Contracts\Foundation\Application;
-use \Trakli\PluginEngine\Tests\Stubs\Models\User;
-use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Laravel\Sanctum\SanctumServiceProvider;
+use Trakli\PluginEngine\Tests\Stubs\Models\User;
 
 /**
  * @property Application $app
@@ -35,7 +35,7 @@ class TestCase extends OrchestraTestCase
 
         $this->pluginsPath = base_path('plugins');
 
-        if (!File::isDirectory($this->pluginsPath)) {
+        if (! File::isDirectory($this->pluginsPath)) {
             File::makeDirectory($this->pluginsPath, 0755, true);
         }
 
@@ -43,9 +43,9 @@ class TestCase extends OrchestraTestCase
         $this->app->instance('path.plugins', $this->pluginsPath);
 
         Factory::guessFactoryNamesUsing(function (string $modelName) {
-            return 'Trakli\\PluginEngine\\Tests\\Stubs\\Factories\\' . class_basename($modelName) . 'Factory';
+            return 'Trakli\\PluginEngine\\Tests\\Stubs\\Factories\\'.class_basename($modelName).'Factory';
         });
-    
+
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
@@ -82,7 +82,7 @@ class TestCase extends OrchestraTestCase
             SanctumServiceProvider::class,
         ];
     }
-    
+
     /**
      * Define environment setup.
      *
@@ -93,12 +93,12 @@ class TestCase extends OrchestraTestCase
         // Setup default database to use sqlite :memory:
         $app['config']->set('database.default', 'testbench');
         $app['config']->set('database.connections.testbench', [
-            'driver'   => 'sqlite',
+            'driver' => 'sqlite',
             'database' => ':memory:',
-            'prefix'   => '',
+            'prefix' => '',
         ]);
         $app['config']->set('auth.providers.users.model', User::class);
-        
+
     }
 
     /**
@@ -107,26 +107,26 @@ class TestCase extends OrchestraTestCase
     protected function createTestPlugin(string $pluginId, array $manifest = []): string
     {
         $pluginPath = "{$this->pluginsPath}/{$pluginId}";
-        
+
         File::ensureDirectoryExists("{$pluginPath}/src");
-        
+
         $defaultManifest = [
             'id' => $pluginId,
-            'name' => 'Test Plugin ' . ucfirst($pluginId),
+            'name' => 'Test Plugin '.ucfirst($pluginId),
             'description' => 'Test plugin description',
             'version' => '1.0.0',
-            'namespace' => 'Trakli\\' . ucfirst($pluginId) . 'Plugin',
-            'provider' => 'Trakli\\' . ucfirst($pluginId) . 'Plugin\\' . ucfirst($pluginId) . 'ServiceProvider',
+            'namespace' => 'Trakli\\'.ucfirst($pluginId).'Plugin',
+            'provider' => 'Trakli\\'.ucfirst($pluginId).'Plugin\\'.ucfirst($pluginId).'ServiceProvider',
             'enabled' => true,
         ];
-        
+
         $manifest = array_merge($defaultManifest, $manifest);
-        
+
         File::put(
             "{$pluginPath}/plugin.json",
             json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
         );
-        
+
         return $pluginPath;
     }
 }

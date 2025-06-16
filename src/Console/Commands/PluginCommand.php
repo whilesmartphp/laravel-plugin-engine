@@ -14,11 +14,11 @@ abstract class PluginCommand extends Command
         parent::__construct();
         $this->pluginManager = $pluginManager;
     }
-    
+
     /**
      * Validate a plugin using PluginManager's validation
-     * 
-     * @param array $plugin The plugin data to validate
+     *
+     * @param  array  $plugin  The plugin data to validate
      * @return array{is_valid: bool, id: ?string, error: ?string} Validation result
      */
     protected function validatePlugin(array $plugin): array
@@ -53,8 +53,8 @@ abstract class PluginCommand extends Command
 
         // Plugin exists but might have errors
         $validation = $this->validatePlugin($plugin);
-        
-        if (!$validation['is_valid']) {
+
+        if (! $validation['is_valid']) {
             $error = $validation['error'] ?? 'Unknown error';
             $pluginId = $validation['id'] ?? $pluginId;
             throw new \RuntimeException("Plugin '{$pluginId}' has errors: {$error}");
@@ -74,24 +74,25 @@ abstract class PluginCommand extends Command
 
         foreach ($allPlugins as $plugin) {
             $validation = $this->validatePlugin($plugin);
-            
+
             // Include plugins with errors in suggestions if their ID matches
-            if (!$validation['is_valid'] && $validation['id'] !== null) {
+            if (! $validation['is_valid'] && $validation['id'] !== null) {
                 try {
-                    $pluginId = strtolower((string)$validation['id']);
+                    $pluginId = strtolower((string) $validation['id']);
                     if (str_contains($pluginId, $input)) {
-                        $suggestions[] = $validation['id'] . ' (error: ' . ($validation['error'] ?? 'unknown') . ')';
+                        $suggestions[] = $validation['id'].' (error: '.($validation['error'] ?? 'unknown').')';
                     }
                 } catch (\Throwable $e) {
                     continue;
                 }
+
                 continue;
             }
-            
+
             // Process valid plugins
             if ($validation['is_valid']) {
                 try {
-                    $pluginId = strtolower((string)$validation['id']);
+                    $pluginId = strtolower((string) $validation['id']);
                     if (str_contains($pluginId, $input)) {
                         $suggestions[] = $validation['id'];
                     }

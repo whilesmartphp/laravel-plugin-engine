@@ -55,6 +55,7 @@ class InfoCommand extends PluginCommand
             return 0;
         } catch (\RuntimeException $e) {
             $this->error($e->getMessage());
+
             return 1;
         }
     }

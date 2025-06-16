@@ -16,17 +16,17 @@ class DisableCommand extends PluginCommand
             $pluginId = $plugin['id'];
             $pluginName = $plugin['name'] ?? $pluginId;
 
-            if (!($plugin['enabled'] ?? false)) {
+            if (! ($plugin['enabled'] ?? false)) {
                 $this->info("Plugin [{$pluginName}] is already disabled.");
+
                 return 0;
             }
 
-
             // Update the plugin's enabled status
-            $manifestPath = $plugin['path'] . '/plugin.json';
+            $manifestPath = $plugin['path'].'/plugin.json';
             $manifest = json_decode(file_get_contents($manifestPath), true);
             $manifest['enabled'] = false;
-            
+
             file_put_contents(
                 $manifestPath,
                 json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
@@ -41,6 +41,7 @@ class DisableCommand extends PluginCommand
             return 0;
         } catch (\RuntimeException $e) {
             $this->error($e->getMessage());
+
             return 1;
         }
     }

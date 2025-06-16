@@ -22,14 +22,13 @@ class ListCommand extends PluginCommand
             return 0;
         }
 
-        
         $rows = [];
 
         foreach ($plugins as $plugin) {
             $validation = $this->pluginManager->validatePlugin($plugin);
             $pluginId = $validation['id'] ?? 'unknown';
             $error = $validation['error'] ?? null;
-            
+
             // Set status based on validation
             if ($error) {
                 $hasErrors = true;
@@ -37,10 +36,10 @@ class ListCommand extends PluginCommand
                 $errorMessages[] = "Plugin {$pluginId}: {$error}";
             } else {
                 $status = $plugin['enabled'] ? '<fg=green>Enabled</>' : '<fg=red>Disabled</>';
-                
+
                 // Additional debug checks for valid plugins
-                if ($debug && !empty($plugin['provider'])) {
-                    if (!class_exists($plugin['provider'])) {
+                if ($debug && ! empty($plugin['provider'])) {
+                    if (! class_exists($plugin['provider'])) {
                         $error = "Provider class not found: {$plugin['provider']}";
                         $status = '<fg=yellow>Error</>';
                         $errorMessages[] = "Plugin {$pluginId}: {$error}";
@@ -65,7 +64,7 @@ class ListCommand extends PluginCommand
 
         if ($hasErrors) {
             $this->warn('Some plugins have errors. Use --debug for more details.');
-            
+
             if ($debug) {
                 $this->line('');
                 $this->warn('Detailed errors:');

@@ -3,8 +3,8 @@
 namespace Trakli\PluginEngine\Tests\Stubs\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Trakli\PluginEngine\Tests\Stubs\Models\User;
 use Illuminate\Support\Str;
+use Trakli\PluginEngine\Tests\Stubs\Models\User;
 
 class UserFactory extends Factory
 {

@@ -3,13 +3,13 @@
 namespace Trakli\PluginEngine\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Trakli\PluginEngine\Services\PluginManager;
 use Trakli\PluginEngine\Console\Commands\DisableCommand;
 use Trakli\PluginEngine\Console\Commands\DiscoverCommand;
 use Trakli\PluginEngine\Console\Commands\EnableCommand;
 use Trakli\PluginEngine\Console\Commands\InfoCommand;
 use Trakli\PluginEngine\Console\Commands\InstallCommand;
 use Trakli\PluginEngine\Console\Commands\ListCommand;
+use Trakli\PluginEngine\Services\PluginManager;
 
 class PluginServiceProvider extends ServiceProvider
 {
