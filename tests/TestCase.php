@@ -7,8 +7,12 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 use Trakli\PluginEngine\Providers\PluginServiceProvider;
-use Trakli\PluginEngine\Tests\Stubs\User;
 use Illuminate\Contracts\Foundation\Application;
+use \Trakli\PluginEngine\Tests\Stubs\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Laravel\Sanctum\SanctumServiceProvider;
 
 /**
  * @property Application $app
@@ -29,17 +33,28 @@ class TestCase extends OrchestraTestCase
     {
         parent::setUp();
 
-        // Set up the plugins path
         $this->pluginsPath = base_path('plugins');
-        
-        // Ensure the plugins directory exists
+
         if (!File::isDirectory($this->pluginsPath)) {
             File::makeDirectory($this->pluginsPath, 0755, true);
         }
 
-        // Set the plugins path in the application
         $this->app['config']->set('plugins.path', $this->pluginsPath);
         $this->app->instance('path.plugins', $this->pluginsPath);
+
+        Factory::guessFactoryNamesUsing(function (string $modelName) {
+            return 'Trakli\\PluginEngine\\Tests\\Stubs\\Factories\\' . class_basename($modelName) . 'Factory';
+        });
+    
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->rememberToken();
+            $table->timestamps();
+        });
     }
 
     /**
@@ -47,7 +62,6 @@ class TestCase extends OrchestraTestCase
      */
     protected function tearDown(): void
     {
-        // Clean up any test plugins
         if (File::isDirectory($this->pluginsPath)) {
             File::cleanDirectory($this->pluginsPath);
         }
@@ -65,9 +79,10 @@ class TestCase extends OrchestraTestCase
     {
         return [
             PluginServiceProvider::class,
+            SanctumServiceProvider::class,
         ];
     }
-
+    
     /**
      * Define environment setup.
      *
@@ -82,6 +97,8 @@ class TestCase extends OrchestraTestCase
             'database' => ':memory:',
             'prefix'   => '',
         ]);
+        $app['config']->set('auth.providers.users.model', User::class);
+        
     }
 
     /**

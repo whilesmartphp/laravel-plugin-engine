@@ -2,7 +2,7 @@
 
 namespace Trakli\Example\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use Illuminate\Routing\Controller;
 
 class ExampleController extends Controller
 {

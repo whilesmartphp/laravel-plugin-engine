@@ -264,17 +264,35 @@ class PluginManager
         $plugins = $this->discover();
         
         foreach ($plugins as $plugin) {
-            if ($plugin['enabled'] && isset($plugin['provider'])) {
-                // Add plugin's directory to the autoloader
-                $pluginNamespace = $plugin['namespace'] ?? '';
-                $pluginSrcPath = $plugin['path'] . '/src';
+            if (empty($plugin['enabled']) || empty($plugin['provider'])) {
+                continue;
+            }
+            
+            try {
+                // Normalize the plugin namespace
+                $pluginNamespace = rtrim($plugin['namespace'] ?? '', '\\') . '\\';
+                $pluginSrcPath = rtrim($plugin['path'], '/') . '/src';
                 
+
                 if (is_dir($pluginSrcPath) && !empty($pluginNamespace)) {
-                    $this->classLoader->addPsr4($pluginNamespace . '\\', $pluginSrcPath);
+                    $this->classLoader->addPsr4($pluginNamespace, $pluginSrcPath);
+                    // Force the autoloader to re-index
+                    $this->classLoader->setUseIncludePath(true);
                 }
                 
-                // Register the service provider
-                $this->app->register($plugin['provider']);
+                if (class_exists($plugin['provider'])) {
+                    $this->app->register($plugin['provider']);
+                } else {
+                    Log::error("Plugin service provider class not found: {$plugin['provider']}", [
+                        'plugin' => $plugin['id'] ?? 'unknown',
+                        'path' => $plugin['path'] ?? null
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::error("Failed to register plugin: " . $e->getMessage(), [
+                    'plugin' => $plugin['id'] ?? 'unknown',
+                    'exception' => $e
+                ]);
             }
         }
     }

@@ -10,7 +10,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Trakli\\PluginEngine\\Tests\\": "tests/"
+            "Trakli\\PluginEngine\\Tests\\": "tests/",
+            "Trakli\\PluginEngine\\Tests\\Stubs\\": "tests/stubs/"
         }
     },
     "authors": [
@@ -31,7 +32,8 @@
         "orchestra/testbench-core": "^8.0",
         "phpunit/phpunit": "^10.0",
         "mockery/mockery": "^1.5",
-        "laravel/pint": "^1.0"
+        "laravel/pint": "^1.0",
+        "laravel/sanctum": "^3.3"
     },
     "extra": {
         "laravel": {
