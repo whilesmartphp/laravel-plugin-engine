@@ -30,6 +30,68 @@ class PluginManager
         $this->classLoader = require base_path('vendor/autoload.php');
         $this->output = $output ?? new OutputStyle(new ArrayInput([]), new NullOutput);
     }
+    
+    /**
+     * Check if a plugin is enabled
+     */
+    public function isPluginEnabled(string $pluginId): bool
+    {
+        $plugin = $this->findPlugin($pluginId);
+        return $plugin && ($plugin['enabled'] ?? false) === true;
+    }
+    
+    /**
+     * Enable a plugin by ID
+     */
+    public function enablePlugin(string $pluginId): bool
+    {
+        return $this->setPluginEnabled($pluginId, true);
+    }
+    
+    /**
+     * Disable a plugin by ID
+     */
+    public function disablePlugin(string $pluginId): bool
+    {
+        return $this->setPluginEnabled($pluginId, false);
+    }
+    
+    /**
+     * Set the enabled state of a plugin
+     */
+    protected function setPluginEnabled(string $pluginId, bool $enabled): bool
+    {
+        $plugin = $this->findPlugin($pluginId);
+        
+        if (! $plugin) {
+            return false;
+        }
+        
+        $manifestPath = $plugin['path'] . '/plugin.json';
+        
+        try {
+            $manifest = json_decode(File::get($manifestPath), true, 512, JSON_THROW_ON_ERROR);
+            $manifest['enabled'] = $enabled;
+            
+            File::put(
+                $manifestPath,
+                json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
+            );
+            
+            // Update the cached plugin data
+            $this->plugins = [];
+            $this->discover();
+            
+            return true;
+        } catch (\Exception $e) {
+            Log::error("Failed to update plugin manifest: " . $e->getMessage(), [
+                'plugin' => $pluginId,
+                'path' => $manifestPath,
+                'exception' => $e
+            ]);
+            return false;
+        }
+    }
 
     /**
      * Find a plugin by its ID (case-insensitive)
@@ -43,14 +105,23 @@ class PluginManager
 
         $plugins = $this->discover();
 
-        return $plugins->first(fn ($p) => strtolower($p['id']) === strtolower($pluginId));
+        return $plugins->first(function ($p) use ($pluginId) {
+            // Check if plugin has an ID and it matches (case-insensitive)
+            $pluginIdLower = strtolower($pluginId);
+            $foundId = isset($p['id']) && strtolower($p['id']) === $pluginIdLower;
+            
+            // Also check if the directory name matches (for invalid plugins without ID)
+            $dirName = basename($p['path'] ?? '');
+            $foundDir = strtolower($dirName) === $pluginIdLower;
+            
+            return $foundId || $foundDir;
+        });
     }
 
     public function discover(): Collection
     {
         if (! empty($this->plugins)) {
             Log::debug('Returning cached plugins');
-
             return collect($this->plugins);
         }
 
@@ -58,7 +129,6 @@ class PluginManager
 
         if (! is_dir($this->pluginsPath)) {
             Log::warning("Plugins directory not found: {$this->pluginsPath}");
-
             return collect();
         }
 
@@ -80,22 +150,32 @@ class PluginManager
 
             if (! file_exists($manifestPath)) {
                 Log::debug("Plugin manifest not found in: {$pluginPath}");
+                // Include in results with error
+                $plugins[] = [
+                    'path' => $pluginPath,
+                    'error' => 'Plugin manifest not found',
+                    'enabled' => false
+                ];
                 continue;
             }
 
             Log::debug('Found plugin manifest', ['path' => $manifestPath]);
             $plugin = $this->loadPlugin($pluginPath);
 
+            // Always include the plugin in the results, even if there was an error
+            // This allows commands to show error information to the user
             if ($plugin) {
                 $expectedDirName = $plugin['id'] ?? null;
                 $actualDirName = $directory->getBasename();
 
-                if ($expectedDirName !== $actualDirName) {
-                    Log::warning(sprintf(
+                if ($expectedDirName && $expectedDirName !== $actualDirName) {
+                    $warning = sprintf(
                         'Plugin directory name "%s" does not match plugin ID "%s"',
                         $actualDirName,
                         $expectedDirName
-                    ));
+                    );
+                    Log::warning($warning);
+                    $plugin['warning'] = $warning;
                 }
 
                 $plugins[] = $plugin;
@@ -115,8 +195,13 @@ class PluginManager
             $manifest = json_decode(File::get($manifestPath), true, 512, JSON_THROW_ON_ERROR);
             
             if (! isset($manifest['id'])) {
-                Log::error("Plugin manifest missing required 'id' field", ['path' => $manifestPath]);
-                return null;
+                $error = "Plugin manifest missing required 'id' field";
+                Log::error($error, ['path' => $manifestPath]);
+                return [
+                    'path' => $pluginPath,
+                    'error' => $error,
+                    'enabled' => false
+                ];
             }
 
             $plugin = array_merge([
@@ -126,12 +211,52 @@ class PluginManager
 
             return $plugin;
         } catch (\JsonException $e) {
-            Log::error("Failed to parse plugin manifest: " . $e->getMessage(), [
+            $error = "Invalid JSON in plugin manifest: " . $e->getMessage();
+            Log::error($error, [
                 'path' => $manifestPath,
                 'exception' => $e
             ]);
-            return null;
+            return [
+                'path' => $pluginPath,
+                'error' => $error,
+                'enabled' => false
+            ];
         }
+    }
+
+    /**
+     * Validate a plugin's structure and return validation result
+     *
+     * @param array $plugin The plugin data to validate
+     * @return array{is_valid: bool, id: ?string, error: ?string} Validation result
+     */
+    public function validatePlugin(array $plugin): array
+    {
+        if (!is_array($plugin)) {
+            return ['is_valid' => false, 'id' => null, 'error' => 'Invalid plugin data'];
+        }
+        
+        if (isset($plugin['error'])) {
+            return [
+                'is_valid' => false, 
+                'id' => $plugin['id'] ?? null, 
+                'error' => $plugin['error']
+            ];
+        }
+        
+        if (empty($plugin['id'])) {
+            return [
+                'is_valid' => false, 
+                'id' => null, 
+                'error' => 'Plugin ID is missing'
+            ];
+        }
+        
+        return [
+            'is_valid' => true,
+            'id' => $plugin['id'],
+            'error' => null
+        ];
     }
 
     public function registerPlugins()

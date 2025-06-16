@@ -26,26 +26,30 @@ class ListCommand extends PluginCommand
         $rows = [];
 
         foreach ($plugins as $plugin) {
-            $status = $plugin['enabled'] ? '<fg=green>Enabled</>' : '<fg=red>Disabled</>';
-            $error = null;
-
-            // Check for common plugin issues
-            if (isset($plugin['error'])) {
+            $validation = $this->pluginManager->validatePlugin($plugin);
+            $pluginId = $validation['id'] ?? 'unknown';
+            $error = $validation['error'] ?? null;
+            
+            // Set status based on validation
+            if ($error) {
                 $hasErrors = true;
                 $status = '<fg=yellow>Error</>';
-                $error = $plugin['error'];
-                $errorMessages[] = "Plugin {$plugin['id']}: {$error}";
-            } elseif ($debug) {
-                // Additional debug checks
-                if (! class_exists($plugin['provider'] ?? '')) {
-                    $error = "Provider class not found: {$plugin['provider']}";
-                    $status = '<fg=yellow>Error</>';
-                    $errorMessages[] = $error;
+                $errorMessages[] = "Plugin {$pluginId}: {$error}";
+            } else {
+                $status = $plugin['enabled'] ? '<fg=green>Enabled</>' : '<fg=red>Disabled</>';
+                
+                // Additional debug checks for valid plugins
+                if ($debug && !empty($plugin['provider'])) {
+                    if (!class_exists($plugin['provider'])) {
+                        $error = "Provider class not found: {$plugin['provider']}";
+                        $status = '<fg=yellow>Error</>';
+                        $errorMessages[] = "Plugin {$pluginId}: {$error}";
+                    }
                 }
             }
 
             $rows[] = [
-                'id' => $plugin['id'] ?? '',
+                'id' => $pluginId,
                 'name' => $plugin['name'] ?? 'Unknown',
                 'version' => $plugin['version'] ?? '1.0.0',
                 'status' => $status,

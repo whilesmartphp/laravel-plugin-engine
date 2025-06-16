@@ -2,33 +2,66 @@
 
 namespace Trakli\PluginEngine\Tests;
 
-use Illuminate\Contracts\Console\Kernel;
-use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Support\Facades\File;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\WithFaker;
+use Orchestra\Testbench\TestCase as OrchestraTestCase;
 use Trakli\PluginEngine\Providers\PluginServiceProvider;
+use Trakli\PluginEngine\Tests\Stubs\User;
+use Illuminate\Contracts\Foundation\Application;
 
-abstract class TestCase extends BaseTestCase
+/**
+ * @property Application $app
+ */
+class TestCase extends OrchestraTestCase
 {
+    use RefreshDatabase, WithFaker;
+
     /**
-     * Creates the application.
-     *
-     * @return \Illuminate\Foundation\Application
+     * The base path to the plugins directory.
      */
-    public function createApplication()
+    protected string $pluginsPath;
+
+    /**
+     * Setup the test environment.
+     */
+    protected function setUp(): void
     {
-        $app = require __DIR__.'/../../bootstrap/app.php';
+        parent::setUp();
 
-        $app->make(Kernel::class)->bootstrap();
+        // Set up the plugins path
+        $this->pluginsPath = base_path('plugins');
+        
+        // Ensure the plugins directory exists
+        if (!File::isDirectory($this->pluginsPath)) {
+            File::makeDirectory($this->pluginsPath, 0755, true);
+        }
 
-        return $app;
+        // Set the plugins path in the application
+        $this->app['config']->set('plugins.path', $this->pluginsPath);
+        $this->app->instance('path.plugins', $this->pluginsPath);
+    }
+
+    /**
+     * Clean up the testing environment before the next test.
+     */
+    protected function tearDown(): void
+    {
+        // Clean up any test plugins
+        if (File::isDirectory($this->pluginsPath)) {
+            File::cleanDirectory($this->pluginsPath);
+        }
+
+        parent::tearDown();
     }
 
     /**
      * Get package providers.
      *
      * @param  \Illuminate\Foundation\Application  $app
-     * @return array
+     * @return array<int, class-string>
      */
-    protected function getPackageProviders($app)
+    protected function getPackageProviders($app): array
     {
         return [
             PluginServiceProvider::class,
@@ -39,36 +72,44 @@ abstract class TestCase extends BaseTestCase
      * Define environment setup.
      *
      * @param  \Illuminate\Foundation\Application  $app
-     * @return void
      */
-    protected function getEnvironmentSetUp($app)
+    protected function defineEnvironment($app): void
     {
-        // Set up test environment
-        $app['config']->set('app.key', 'base64:yWa1By9jVUlwUb4iAArLf1SKJ6td8tnttBmGnf4tFTk=');
-        $app['config']->set('database.default', 'testing');
-        $app['config']->set('database.connections.testing', [
-            'driver' => 'sqlite',
+        // Setup default database to use sqlite :memory:
+        $app['config']->set('database.default', 'testbench');
+        $app['config']->set('database.connections.testbench', [
+            'driver'   => 'sqlite',
             'database' => ':memory:',
-            'prefix' => '',
+            'prefix'   => '',
         ]);
-        
-        // Set up plugin paths
-        $app['config']->set('plugins.path', base_path('plugins'));
     }
-    
+
     /**
-     * Reset the example plugin's state.
-     *
-     * @return void
+     * Create a test plugin directory structure.
      */
-    protected function resetExamplePluginState(): void
+    protected function createTestPlugin(string $pluginId, array $manifest = []): string
     {
-        $manifestPath = base_path('plugins/example/plugin.json');
+        $pluginPath = "{$this->pluginsPath}/{$pluginId}";
         
-        if (file_exists($manifestPath)) {
-            $manifest = json_decode(file_get_contents($manifestPath), true);
-            $manifest['enabled'] = true; // Ensure the plugin is enabled by default for tests
-            file_put_contents($manifestPath, json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-        }
+        File::ensureDirectoryExists("{$pluginPath}/src");
+        
+        $defaultManifest = [
+            'id' => $pluginId,
+            'name' => 'Test Plugin ' . ucfirst($pluginId),
+            'description' => 'Test plugin description',
+            'version' => '1.0.0',
+            'namespace' => 'Trakli\\' . ucfirst($pluginId) . 'Plugin',
+            'provider' => 'Trakli\\' . ucfirst($pluginId) . 'Plugin\\' . ucfirst($pluginId) . 'ServiceProvider',
+            'enabled' => true,
+        ];
+        
+        $manifest = array_merge($defaultManifest, $manifest);
+        
+        File::put(
+            "{$pluginPath}/plugin.json",
+            json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+        );
+        
+        return $pluginPath;
     }
 }

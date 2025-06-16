@@ -2,37 +2,32 @@
 
 namespace Trakli\PluginEngine\Tests\Feature\Plugin;
 
-use Trakli\PluginEngine\Services\PluginManager;
 use Illuminate\Support\Facades\File;
+use Trakli\PluginEngine\Services\PluginManager;
 use Trakli\PluginEngine\Tests\TestCase;
+use Trakli\PluginEngine\Tests\Stubs\User;
+
 
 class PluginManagerTest extends TestCase
 {
-    protected string $pluginsPath;
-
     protected PluginManager $pluginManager;
-
-    protected string $examplePluginPath;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->pluginsPath = base_path('plugins');
-        $this->examplePluginPath = "{$this->pluginsPath}/example";
-        $this->app->instance('path.plugins', $this->pluginsPath);
+        
+        // Create an example plugin for testing
+        $this->createTestPlugin('example', [
+            'name' => 'Example Plugin',
+            'description' => 'An example plugin for testing',
+        ]);
+        
         $this->pluginManager = new PluginManager($this->app);
     }
-
-    protected function tearDown(): void
-    {
-        // Reset any modified plugin state
-        $this->resetExamplePluginState();
-        parent::tearDown();
-    }
-
+    
     protected function resetExamplePluginState(): void
     {
-        $manifestPath = "{$this->examplePluginPath}/plugin.json";
+        $manifestPath = "{$this->pluginsPath}/example/plugin.json";
         if (file_exists($manifestPath)) {
             $manifest = json_decode(file_get_contents($manifestPath), true);
             if (($manifest['enabled'] ?? true) !== true) {
@@ -98,8 +93,15 @@ EOT
         $plugins = $this->pluginManager->discover();
 
         // Should find at least the example plugin
-        $this->assertGreaterThanOrEqual(1, $plugins->count());
-        $this->assertNotNull($plugins->firstWhere('id', 'example'));
+        $this->assertGreaterThanOrEqual(1, count($plugins), 'At least one plugin should be discovered');
+        $this->assertNotNull(collect($plugins)->firstWhere('id', 'example'), 'Example plugin should be discovered');
+
+        $plugin = $this->pluginManager->findPlugin('example');
+        $this->assertNotNull($plugin, 'Should find plugin by ID');
+        $this->assertEquals('example', $plugin['id']);
+
+        $plugin = $this->pluginManager->findPlugin('NONEXISTENT');
+        $this->assertNull($plugin, 'Should return null for non-existent plugin');
     }
 
     /** @test */
@@ -107,7 +109,7 @@ EOT
     {
         $plugin = $this->pluginManager->findPlugin('EXAMPLE');
 
-        $this->assertNotNull($plugin);
+        $this->assertNotNull($plugin, 'Should find plugin by ID case insensitive');
         $this->assertEquals('example', $plugin['id']);
     }
 
@@ -116,7 +118,7 @@ EOT
     {
         $plugin = $this->pluginManager->findPlugin('nonexistent');
 
-        $this->assertNull($plugin);
+        $this->assertNull($plugin, 'Should return null for non-existent plugin');
     }
 
     /** @test */
@@ -176,17 +178,56 @@ EOT
     }
 
     /** @test */
-    public function it_can_register_plugin_providers()
+    public function it_can_enable_and_disable_plugins()
     {
-        // The PluginManager should register the plugin's service provider
-        // when the plugin is enabled in its manifest
-        $this->assertTrue(true); // Placeholder for actual test
+        $this->assertTrue($this->pluginManager->isPluginEnabled('example'));
+        $this->assertTrue($this->pluginManager->enablePlugin('example'));
+        $this->assertFalse($this->pluginManager->enablePlugin('nonexistent'));
+        $this->assertTrue($this->pluginManager->isPluginEnabled('example'));
+        $this->assertTrue($this->pluginManager->disablePlugin('example'));
     }
-    
+
     /** @test */
-    public function it_skips_disabled_plugins_during_registration()
+    public function it_allows_access_to_protected_route_when_authenticated()
     {
-        // The PluginManager should skip disabled plugins during registration
-        $this->assertTrue(true); // Placeholder for actual test
+        $this->pluginManager->enablePlugin('example');
+
+        $user = new User([
+            'id' => 1,
+            'name' => 'Test User',
+            'email' => 'test@example.com',
+        ]);
+
+        $this->actingAs($user);
+
+        $response = $this->get('/api/example/protected');
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure([
+            'message',
+            'user_id',
+            'user_name',
+            'timestamp',
+        ]);
+        $response->assertJson([
+            'user_id' => $user->id,
+            'user_name' => $user->name,
+        ]);
+    }
+
+    /** @test */
+    public function it_prevents_access_to_disabled_plugin_routes()
+    {
+        $pluginManager = app(PluginManager::class);
+
+        $pluginManager->enablePlugin('example');
+
+        $response = $this->get('/api/example');
+        $response->assertStatus(200);
+
+        $pluginManager->disablePlugin('example');
+
+        $response = $this->get('/api/example');
+        $response->assertStatus(404);
     }
 }

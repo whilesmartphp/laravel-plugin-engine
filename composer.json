@@ -28,8 +28,10 @@
     },
     "require-dev": {
         "orchestra/testbench": "^8.0",
+        "orchestra/testbench-core": "^8.0",
         "phpunit/phpunit": "^10.0",
-        "mockery/mockery": "^1.5"
+        "mockery/mockery": "^1.5",
+        "laravel/pint": "^1.0"
     },
     "extra": {
         "laravel": {
@@ -41,7 +43,19 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "scripts": {
-        "test": "vendor/bin/phpunit",
-        "test-coverage": "XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-html coverage"
+        "test": "testbench package:test",
+        "test:coverage": "XDEBUG_MODE=coverage testbench package:test --coverage-html coverage",
+        "test:ci": "testbench package:test --coverage-clover=coverage.xml",
+        "test:debug": "testbench package:test --debug",
+        "pint": "vendor/bin/pint",
+        "pint:test": "vendor/bin/pint --test",
+        "pint:fix": "vendor/bin/pint",
+        "cs": [
+            "@pint:test",
+            "@test"
+        ],
+        "cs:fix": [
+            "@pint:fix"
+        ]
     }
 }
