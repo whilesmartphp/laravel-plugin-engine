@@ -137,4 +137,4 @@ The plugin system dispatches several events that you can listen for:
 
 ## License
 
-This package is proprietary and confidential. All rights reserved.
+This project is open-source and licensed under the [MIT License](./LICENSE). 
