@@ -1,63 +1,62 @@
 {
-    "name": "whilesmart/laravel-plugin-engine",
-    "description": "Laravel plugin engine for WhileSmart applications",
-    "type": "library",
-    "license": "proprietary",
-    "autoload": {
-        "psr-4": {
-            "WhileSmart\\LaravelPluginEngine\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "WhileSmart\\LaravelPluginEngine\\Tests\\": "tests/",
-            "WhileSmart\\LaravelPluginEngine\\Tests\\Stubs\\": "tests/stubs/"
-        }
-    },
-    "authors": [
-        {
-            "name": "WhileSmart Engineering Team",
-            "email": "engineering@whilesmart.com"
-        }
-    ],
-    "require": {
-        "php": "^8.1",
-        "illuminate/support": "^10.0",
-        "illuminate/console": "^10.0",
-        "illuminate/filesystem": "^10.0",
-        "illuminate/database": "^10.0"
-    },
-    "require-dev": {
-        "orchestra/testbench": "^8.0",
-        "orchestra/testbench-core": "^8.0",
-        "phpunit/phpunit": "^10.0",
-        "mockery/mockery": "^1.5",
-        "laravel/pint": "^1.0",
-        "laravel/sanctum": "^3.3"
-    },
-    "extra": {
-        "laravel": {
-            "providers": [
-                "WhileSmart\\LaravelPluginEngine\\Providers\\PluginServiceProvider"
-            ]
-        }
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
-    "scripts": {
-        "test": "testbench package:test",
-        "test:coverage": "XDEBUG_MODE=coverage testbench package:test --coverage-html coverage",
-        "test:ci": "testbench package:test --coverage-clover=coverage.xml",
-        "test:debug": "testbench package:test --debug",
-        "pint": "vendor/bin/pint",
-        "pint:test": "vendor/bin/pint --test",
-        "pint:fix": "vendor/bin/pint",
-        "cs": [
-            "@pint:test",
-            "@test"
-        ],
-        "cs:fix": [
-            "@pint:fix"
-        ]
+  "name": "whilesmart/laravel-plugin-engine",
+  "description": "Laravel plugin engine for WhileSmart applications",
+  "type": "library",
+  "license": "proprietary",
+  "autoload": {
+    "psr-4": {
+      "WhileSmart\\LaravelPluginEngine\\": "src/"
     }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "WhileSmart\\LaravelPluginEngine\\Tests\\": "tests/",
+      "WhileSmart\\LaravelPluginEngine\\Tests\\Stubs\\": "tests/stubs/"
+    }
+  },
+  "authors": [
+    {
+      "name": "WhileSmart Engineering Team",
+      "email": "engineering@whilesmart.com"
+    }
+  ],
+  "require": {
+    "php": "^8.1",
+    "illuminate/support": "^11.0",
+    "illuminate/console": "^11.0",
+    "illuminate/filesystem": "^11.0",
+    "illuminate/database": "^11.45"
+  },
+  "require-dev": {
+    "orchestra/testbench": "^9.0",
+    "phpunit/phpunit": "^11.0",
+    "mockery/mockery": "^1.5",
+    "laravel/pint": "^1.0",
+    "laravel/sanctum": "^4.0"
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "WhileSmart\\LaravelPluginEngine\\Providers\\PluginServiceProvider"
+      ]
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "scripts": {
+    "test": "testbench package:test",
+    "test:coverage": "XDEBUG_MODE=coverage testbench package:test --coverage-html coverage",
+    "test:ci": "testbench package:test --coverage-clover=coverage.xml",
+    "test:debug": "testbench package:test --debug",
+    "pint": "vendor/bin/pint",
+    "pint:test": "vendor/bin/pint --test",
+    "pint:fix": "vendor/bin/pint",
+    "cs": [
+      "@pint:test",
+      "@test"
+    ],
+    "cs:fix": [
+      "@pint:fix"
+    ]
+  }
 }
