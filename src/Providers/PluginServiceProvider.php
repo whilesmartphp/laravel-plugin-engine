@@ -19,6 +19,7 @@ class PluginServiceProvider extends ServiceProvider
         \WhileSmart\LaravelPluginEngine\Console\Commands\InfoCommand::class,
         \WhileSmart\LaravelPluginEngine\Console\Commands\InstallCommand::class,
         \WhileSmart\LaravelPluginEngine\Console\Commands\ListCommand::class,
+        \WhileSmart\LaravelPluginEngine\Console\Commands\GenerateOpenApiDocsCommand::class,
     ];
 
     /**
@@ -63,7 +64,7 @@ class PluginServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot()
+    public function boot(): void
     {
         $this->publishConfig();
         $this->registerPlugins();
