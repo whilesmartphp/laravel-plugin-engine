@@ -7,12 +7,14 @@ use Illuminate\Console\OutputStyle;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\NullOutput;
+use WhileSmart\LaravelPluginEngine\Traits\Loggable;
 
 class PluginManager
 {
+    use Loggable;
+
     protected Application $app;
 
     protected string $pluginsPath;
@@ -85,7 +87,7 @@ class PluginManager
 
             return true;
         } catch (\Exception $e) {
-            Log::error('Failed to update plugin manifest: '.$e->getMessage(), [
+            $this->error('Failed to update plugin manifest: '.$e->getMessage(), [
                 'plugin' => $pluginId,
                 'path' => $manifestPath,
                 'exception' => $e,
@@ -123,15 +125,15 @@ class PluginManager
     public function discover(): Collection
     {
         if (! empty($this->plugins)) {
-            Log::debug('Returning cached plugins');
+            $this->debug('Returning cached plugins');
 
             return collect($this->plugins);
         }
 
-        Log::debug('Starting plugin discovery', ['path' => $this->pluginsPath]);
+        $this->debug('Starting plugin discovery', ['path' => $this->pluginsPath]);
 
         if (! is_dir($this->pluginsPath)) {
-            Log::warning("Plugins directory not found: {$this->pluginsPath}");
+            $this->warning("Plugins directory not found: {$this->pluginsPath}");
 
             return collect();
         }
@@ -144,17 +146,17 @@ class PluginManager
             $foundDirs[] = $directory->getBasename();
 
             if (! $directory->isDir() || $directory->isDot()) {
-                Log::debug('Skipping non-directory or dot file', ['path' => $directory->getPathname()]);
+                $this->debug('Skipping non-directory or dot file', ['path' => $directory->getPathname()]);
 
                 continue;
             }
 
             $pluginPath = $directory->getPathname();
             $manifestPath = $pluginPath.'/plugin.json';
-            Log::debug('Checking plugin directory', ['path' => $pluginPath]);
+            $this->debug('Checking plugin directory', ['path' => $pluginPath]);
 
             if (! file_exists($manifestPath)) {
-                Log::debug("Plugin manifest not found in: {$pluginPath}");
+                $this->debug("Plugin manifest not found in: {$pluginPath}");
                 // Include in results with error
                 $plugins[] = [
                     'path' => $pluginPath,
@@ -165,7 +167,7 @@ class PluginManager
                 continue;
             }
 
-            Log::debug('Found plugin manifest', ['path' => $manifestPath]);
+            $this->debug('Found plugin manifest', ['path' => $manifestPath]);
             $plugin = $this->loadPlugin($pluginPath);
 
             // Always include the plugin in the results, even if there was an error
@@ -180,7 +182,7 @@ class PluginManager
                         $actualDirName,
                         $expectedDirName
                     );
-                    Log::warning($warning);
+                    $this->warning($warning);
                     $plugin['warning'] = $warning;
                 }
 
@@ -202,7 +204,7 @@ class PluginManager
 
             if (! isset($manifest['id'])) {
                 $error = "Plugin manifest missing required 'id' field";
-                Log::error($error, ['path' => $manifestPath]);
+                $this->error($error, ['path' => $manifestPath]);
 
                 return [
                     'path' => $pluginPath,
@@ -219,7 +221,7 @@ class PluginManager
             return $plugin;
         } catch (\JsonException $e) {
             $error = 'Invalid JSON in plugin manifest: '.$e->getMessage();
-            Log::error($error, [
+            $this->error($error, [
                 'path' => $manifestPath,
                 'exception' => $e,
             ]);
@@ -290,13 +292,13 @@ class PluginManager
                 if (class_exists($plugin['provider'])) {
                     $this->app->register($plugin['provider']);
                 } else {
-                    Log::error("Plugin service provider class not found: {$plugin['provider']}", [
+                    $this->error("Plugin service provider class not found: {$plugin['provider']}", [
                         'plugin' => $plugin['id'] ?? 'unknown',
                         'path' => $plugin['path'] ?? null,
                     ]);
                 }
             } catch (\Exception $e) {
-                Log::error('Failed to register plugin: '.$e->getMessage(), [
+                $this->error('Failed to register plugin: '.$e->getMessage(), [
                     'plugin' => $plugin['id'] ?? 'unknown',
                     'exception' => $e,
                 ]);
