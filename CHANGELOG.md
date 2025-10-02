@@ -11,7 +11,7 @@ All notable changes to this project will be documented in this file.
 - Configuration system
 - Event system for plugin lifecycle
 
-## [1.0.0] - 2025-06-14
+## [1.0.0] - 2025-10-02
 
 ### Added
 - First stable release
