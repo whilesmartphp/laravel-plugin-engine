@@ -22,4 +22,14 @@ return [
     |
     */
     'namespace' => 'Plugins',
+
+    /*
+  |--------------------------------------------------------------------------
+  | App Environment
+  |--------------------------------------------------------------------------
+  |
+  | This value is used to determine if debug logs are shown
+  |
+  */
+    'environment' => env('APP_ENV', 'production'),
 ];

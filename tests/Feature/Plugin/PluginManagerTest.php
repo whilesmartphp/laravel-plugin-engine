@@ -89,8 +89,7 @@ EOT
         return $pluginPath;
     }
 
-    /** @test */
-    public function it_can_discover_plugins()
+    public function test_it_can_discover_plugins()
     {
         $plugins = $this->pluginManager->discover();
 
@@ -106,8 +105,7 @@ EOT
         $this->assertNull($plugin, 'Should return null for non-existent plugin');
     }
 
-    /** @test */
-    public function it_can_find_a_plugin_by_id_case_insensitive()
+    public function test_it_can_find_a_plugin_by_id_case_insensitive()
     {
         $plugin = $this->pluginManager->findPlugin('EXAMPLE');
 
@@ -115,16 +113,14 @@ EOT
         $this->assertEquals('example', $plugin['id']);
     }
 
-    /** @test */
-    public function it_returns_null_for_nonexistent_plugin()
+    public function test_it_returns_null_for_nonexistent_plugin()
     {
         $plugin = $this->pluginManager->findPlugin('nonexistent');
 
         $this->assertNull($plugin, 'Should return null for non-existent plugin');
     }
 
-    /** @test */
-    public function it_validates_plugin_manifest()
+    public function test_it_validates_plugin_manifest()
     {
         $tempPath = storage_path('framework/testing/temp_plugin');
         File::ensureDirectoryExists($tempPath);
@@ -147,8 +143,7 @@ EOT
         $this->pluginManager = new PluginManager($this->app);
     }
 
-    /** @test */
-    public function it_requires_plugin_id_to_match_directory_name()
+    public function test_it_requires_plugin_id_to_match_directory_name()
     {
         $tempPath = storage_path('framework/testing/mismatched_plugin');
         File::ensureDirectoryExists($tempPath);
@@ -179,8 +174,7 @@ EOT
         $this->pluginManager = new PluginManager($this->app);
     }
 
-    /** @test */
-    public function it_can_enable_and_disable_plugins()
+    public function test_it_can_enable_and_disable_plugins()
     {
         $this->assertTrue($this->pluginManager->isPluginEnabled('example'));
         $this->assertTrue($this->pluginManager->enablePlugin('example'));
@@ -189,8 +183,7 @@ EOT
         $this->assertTrue($this->pluginManager->disablePlugin('example'));
     }
 
-    /** @test */
-    public function it_allows_access_to_protected_route_when_authenticated()
+    public function test_it_allows_access_to_protected_route_when_authenticated()
     {
         $this->pluginManager->enablePlugin('example');
         $user = User::factory()->create();
@@ -211,8 +204,7 @@ EOT
         ]);
     }
 
-    /** @test */
-    public function it_prevents_access_to_disabled_plugin_routes()
+    public function test_it_prevents_access_to_disabled_plugin_routes()
     {
         $this->pluginManager->enablePlugin('example');
 

@@ -51,24 +51,21 @@ class PluginCommandsTest extends TestCase
         }
     }
 
-    /** @test */
-    public function it_lists_plugins()
+    public function test_it_lists_plugins()
     {
         $this->artisan('plugin:list')
             ->assertExitCode(0)
             ->expectsOutputToContain('Example Plugin');
     }
 
-    /** @test */
-    public function it_shows_plugin_info()
+    public function test_it_shows_plugin_info()
     {
         $this->artisan('plugin:info example')
             ->assertExitCode(0)
             ->expectsOutputToContain('Example Plugin');
     }
 
-    /** @test */
-    public function it_enables_plugins()
+    public function test_it_enables_plugins()
     {
         $this->artisan('plugin:disable example')
             ->assertExitCode(0);
@@ -81,32 +78,28 @@ class PluginCommandsTest extends TestCase
             ->assertExitCode(0);
     }
 
-    /** @test */
-    public function it_disables_plugins()
+    public function test_it_disables_plugins()
     {
         $this->artisan('plugin:disable example')
             ->assertExitCode(0)
             ->expectsOutputToContain('disabled successfully');
     }
 
-    /** @test */
-    public function it_handles_nonexistent_plugin()
+    public function test_it_handles_nonexistent_plugin()
     {
         $this->artisan('plugin:info nonexistent')
             ->expectsOutputToContain('not found')
             ->assertExitCode(1);
     }
 
-    /** @test */
-    public function it_suggests_similar_plugin_names()
+    public function test_it_suggests_similar_plugin_names()
     {
         $this->artisan('plugin:info examp')
             ->expectsOutputToContain('Did you mean one of these?')
             ->assertExitCode(1);
     }
 
-    /** @test */
-    public function it_handles_invalid_plugin_manifest()
+    public function test_it_handles_invalid_plugin_manifest()
     {
         $pluginPath = $this->createTestPlugin('invalid_plugin', [
             'name' => 'Invalid Plugin',
@@ -123,8 +116,7 @@ class PluginCommandsTest extends TestCase
             ->expectsOutputToContain("Plugin 'invalid_plugin' has errors: Invalid JSON in plugin manifest: Syntax error");
     }
 
-    /** @test */
-    public function it_handles_missing_id_in_manifest()
+    public function test_it_handles_missing_id_in_manifest()
     {
         $pluginId = 'missing_id_plugin';
         $pluginPath = "{$this->pluginsPath}/{$pluginId}";
