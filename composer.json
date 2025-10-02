@@ -3,6 +3,7 @@
   "description": "Laravel plugin engine for WhileSmart applications",
   "type": "library",
   "license": "proprietary",
+  "package-version": "1.0.0",
   "autoload": {
     "psr-4": {
       "WhileSmart\\LaravelPluginEngine\\": "src/"
