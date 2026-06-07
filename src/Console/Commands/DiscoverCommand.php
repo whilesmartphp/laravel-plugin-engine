@@ -12,7 +12,11 @@ class DiscoverCommand extends PluginCommand
     {
         $this->info('Discovering plugins...');
 
-        $plugins = $this->pluginManager->discover();
+        $plugins = $this->pluginManager->discover(true);
+
+        if ($this->pluginManager->pluginsAreCached()) {
+            $this->pluginManager->cachePlugins();
+        }
 
         if ($plugins->isEmpty()) {
             $this->warn('No plugins found.');

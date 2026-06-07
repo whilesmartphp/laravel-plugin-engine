@@ -2,6 +2,7 @@
 
 namespace Trakli\Example\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
 
 class ExampleController extends Controller
@@ -17,7 +18,7 @@ class ExampleController extends Controller
     /**
      * Get protected data that requires authentication
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @return JsonResponse
      */
     public function protectedData()
     {

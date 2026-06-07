@@ -66,6 +66,8 @@ class TestCase extends OrchestraTestCase
             File::cleanDirectory($this->pluginsPath);
         }
 
+        File::delete($this->app->bootstrapPath('cache/plugins.php'));
+
         parent::tearDown();
     }
 

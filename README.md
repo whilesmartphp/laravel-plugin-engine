@@ -42,8 +42,22 @@ Edit the `config/plugins.php` file to configure the plugin system:
 return [
     'path' => base_path('plugins'),  // Path where plugins are stored
     'namespace' => 'Plugins',        // Root namespace for plugins
+
+    'log_channel' => env('PLUGIN_ENGINE_LOG_CHANNEL'),       // Log channel, null = app default
+    'log_level' => env('PLUGIN_ENGINE_LOG_LEVEL', 'warning'), // Minimum level the engine logs at
 ];
 ```
+
+### Logging
+
+The engine logs through its own configurable channel and minimum level,
+independent of the application's logging:
+
+- `PLUGIN_ENGINE_LOG_CHANNEL`: any channel from `config/logging.php`. Leave
+  unset to use the application's default channel.
+- `PLUGIN_ENGINE_LOG_LEVEL`: messages below this level are dropped. Defaults
+  to `warning`, so routine discovery output stays out of production logs. Set
+  to `debug` to trace plugin discovery and registration.
 
 ## Usage
 
@@ -55,6 +69,27 @@ return [
 - `plugin:disable {id}` - Disable a plugin
 - `plugin:install {package}` - Install a plugin
 - `plugin:discover` - Discover and register all available plugins
+- `plugin:cache` - Compile discovered plugins into a cache file
+- `plugin:clear` - Remove the plugin cache file
+
+### Caching
+
+By default, plugins are discovered by scanning the plugins directory and
+parsing each manifest on every boot. In production, compile the result to a
+cache file instead, alongside the framework's other caches:
+
+```bash
+php artisan plugin:cache
+```
+
+The compiled file is loaded on boot and the filesystem scan is skipped.
+Run this on every deploy, next to `config:cache` and `route:cache`.
+`plugin:enable`, `plugin:disable`, and `plugin:discover` refresh an existing
+cache automatically. To return to live discovery:
+
+```bash
+php artisan plugin:clear
+```
 
 ### Creating a Plugin
 
@@ -134,6 +169,19 @@ The plugin system dispatches several events that you can listen for:
 - `WhileSmart\PluginEngine\Events\PluginDisabled` - Fired after a plugin is disabled
 - `WhileSmart\PluginEngine\Events\PluginInstalled` - Fired after a plugin is installed
 - `WhileSmart\PluginEngine\Events\PluginDiscovered` - Fired when a plugin is discovered
+
+## Development
+
+The repository ships a dockerized environment, so PHP and Composer are not
+required on the host:
+
+```bash
+make install   # build the container and install dependencies
+make test      # run the test suite
+make pint      # fix code style
+make check     # run style check and tests
+make shell     # open a shell in the container
+```
 
 ## License
 
