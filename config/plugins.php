@@ -22,4 +22,27 @@ return [
     |
     */
     'namespace' => 'Plugins',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Log Channel
+    |--------------------------------------------------------------------------
+    |
+    | The log channel the plugin engine writes to. When null, the
+    | application's default log channel is used.
+    |
+    */
+    'log_channel' => env('PLUGIN_ENGINE_LOG_CHANNEL'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Log Level
+    |--------------------------------------------------------------------------
+    |
+    | The minimum level the plugin engine logs at, independent of the
+    | application's log level. Messages below this level are dropped
+    | before they reach the channel.
+    |
+    */
+    'log_level' => env('PLUGIN_ENGINE_LOG_LEVEL', 'warning'),
 ];
