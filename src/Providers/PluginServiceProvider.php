@@ -2,7 +2,19 @@
 
 namespace WhileSmart\LaravelPluginEngine\Providers;
 
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
+use Psr\Log\LoggerInterface;
+use WhileSmart\LaravelPluginEngine\Console\Commands\CacheCommand;
+use WhileSmart\LaravelPluginEngine\Console\Commands\ClearCommand;
+use WhileSmart\LaravelPluginEngine\Console\Commands\DisableCommand;
+use WhileSmart\LaravelPluginEngine\Console\Commands\DiscoverCommand;
+use WhileSmart\LaravelPluginEngine\Console\Commands\EnableCommand;
+use WhileSmart\LaravelPluginEngine\Console\Commands\GenerateOpenApiDocsCommand;
+use WhileSmart\LaravelPluginEngine\Console\Commands\InfoCommand;
+use WhileSmart\LaravelPluginEngine\Console\Commands\InstallCommand;
+use WhileSmart\LaravelPluginEngine\Console\Commands\ListCommand;
+use WhileSmart\LaravelPluginEngine\Logging\LevelFilteringLogger;
 use WhileSmart\LaravelPluginEngine\Services\PluginManager;
 
 class PluginServiceProvider extends ServiceProvider
@@ -13,13 +25,15 @@ class PluginServiceProvider extends ServiceProvider
      * @var array
      */
     protected $commands = [
-        \WhileSmart\LaravelPluginEngine\Console\Commands\DisableCommand::class,
-        \WhileSmart\LaravelPluginEngine\Console\Commands\DiscoverCommand::class,
-        \WhileSmart\LaravelPluginEngine\Console\Commands\EnableCommand::class,
-        \WhileSmart\LaravelPluginEngine\Console\Commands\InfoCommand::class,
-        \WhileSmart\LaravelPluginEngine\Console\Commands\InstallCommand::class,
-        \WhileSmart\LaravelPluginEngine\Console\Commands\ListCommand::class,
-        \WhileSmart\LaravelPluginEngine\Console\Commands\GenerateOpenApiDocsCommand::class,
+        CacheCommand::class,
+        ClearCommand::class,
+        DisableCommand::class,
+        DiscoverCommand::class,
+        EnableCommand::class,
+        InfoCommand::class,
+        InstallCommand::class,
+        ListCommand::class,
+        GenerateOpenApiDocsCommand::class,
     ];
 
     /**
@@ -43,10 +57,23 @@ class PluginServiceProvider extends ServiceProvider
     protected function registerPluginManager()
     {
         $this->app->singleton(PluginManager::class, function ($app) {
-            return new PluginManager($app);
+            return new PluginManager($app, null, $this->createLogger($app));
         });
 
         $this->app->alias(PluginManager::class, 'plugin.manager');
+    }
+
+    /**
+     * Create the logger the plugin engine writes to, honoring the
+     * configured channel and minimum level.
+     */
+    protected function createLogger(Application $app): LoggerInterface
+    {
+        $config = $app['config'];
+
+        $channel = $app['log']->channel($config->get('plugins.log_channel'));
+
+        return new LevelFilteringLogger($channel, $config->get('plugins.log_level') ?? 'warning');
     }
 
     /**

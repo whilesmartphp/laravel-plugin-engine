@@ -35,6 +35,9 @@ class DisableCommand extends PluginCommand
             $this->info("Plugin [{$pluginName}] disabled successfully.");
 
             // Clear caches to ensure the plugin is immediately unavailable
+            if ($this->pluginManager->pluginsAreCached()) {
+                $this->pluginManager->cachePlugins();
+            }
             $this->call('config:clear');
             $this->call('route:clear');
 
