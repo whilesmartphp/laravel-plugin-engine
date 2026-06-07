@@ -1,19 +1,21 @@
 <?php
 
+use Composer\InstalledVersions;
+
 // Use Composer's InstalledVersions to determine the project root.
 // This is a more reliable and performant method than traversing the filesystem.
-if (class_exists(\Composer\InstalledVersions::class)) {
-    $projectRoot = \Composer\InstalledVersions::getRootPackage()['install_path'];
+if (class_exists(InstalledVersions::class)) {
+    $projectRoot = InstalledVersions::getRootPackage()['install_path'];
 } else {
     // If Composer 2's InstalledVersions is not available, we cannot reliably determine the project root.
     // This typically indicates an incomplete Composer setup or an environment not using Composer 2+.
-    throw new \RuntimeException('Cannot determine project root. Please ensure Composer is used and its dependencies are installed, or that you are using Composer 2.');
+    throw new RuntimeException('Cannot determine project root. Please ensure Composer is used and its dependencies are installed, or that you are using Composer 2.');
 }
 
 // Require the project's autoloader.
 $autoloaderPath = $projectRoot.'/vendor/autoload.php';
 if (! file_exists($autoloaderPath)) {
-    throw new \RuntimeException('Could not find vendor/autoload.php. Please run composer install.');
+    throw new RuntimeException('Could not find vendor/autoload.php. Please run composer install.');
 }
 $autoloader = require $autoloaderPath;
 
