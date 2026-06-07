@@ -84,7 +84,11 @@ class PluginManager
             );
 
             // Update the cached plugin data
-            $this->discover(true);
+            if ($this->pluginsAreCached()) {
+                $this->cachePlugins();
+            } else {
+                $this->discover(true);
+            }
 
             return true;
         } catch (\Exception $e) {
@@ -126,6 +130,7 @@ class PluginManager
     /**
      * Discover all plugins.
      *
+     * Resolution order: in-memory cache, compiled cache file, filesystem scan.
      * Pass $fresh to force a filesystem scan.
      */
     public function discover(bool $fresh = false): Collection
@@ -133,6 +138,10 @@ class PluginManager
         if ($fresh) {
             $this->plugins = [];
         } elseif (! empty($this->plugins)) {
+            return collect($this->plugins);
+        } elseif ($this->pluginsAreCached()) {
+            $this->plugins = $this->loadCachedPlugins();
+
             return collect($this->plugins);
         }
 
@@ -194,6 +203,54 @@ class PluginManager
         ]);
 
         return collect($plugins);
+    }
+
+    /**
+     * Determine if a compiled plugin cache file exists.
+     */
+    public function pluginsAreCached(): bool
+    {
+        return is_file($this->getCachedPluginsPath());
+    }
+
+    /**
+     * Get the path to the compiled plugin cache file.
+     */
+    public function getCachedPluginsPath(): string
+    {
+        return $this->app->bootstrapPath('cache/plugins.php');
+    }
+
+    /**
+     * Compile the discovered plugins into a cache file and return its path.
+     */
+    public function cachePlugins(): string
+    {
+        $plugins = $this->discover(true)->all();
+        $path = $this->getCachedPluginsPath();
+
+        File::ensureDirectoryExists(dirname($path));
+        File::put($path, '<?php return '.var_export($plugins, true).';'.PHP_EOL);
+
+        return $path;
+    }
+
+    /**
+     * Remove the compiled plugin cache file.
+     */
+    public function clearCachedPlugins(): bool
+    {
+        return File::delete($this->getCachedPluginsPath());
+    }
+
+    /**
+     * Load plugins from the compiled cache file.
+     */
+    protected function loadCachedPlugins(): array
+    {
+        $plugins = require $this->getCachedPluginsPath();
+
+        return is_array($plugins) ? $plugins : [];
     }
 
     protected function loadPlugin(string $pluginPath): ?array

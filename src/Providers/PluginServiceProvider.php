@@ -5,6 +5,8 @@ namespace WhileSmart\LaravelPluginEngine\Providers;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use Psr\Log\LoggerInterface;
+use WhileSmart\LaravelPluginEngine\Console\Commands\CacheCommand;
+use WhileSmart\LaravelPluginEngine\Console\Commands\ClearCommand;
 use WhileSmart\LaravelPluginEngine\Console\Commands\DisableCommand;
 use WhileSmart\LaravelPluginEngine\Console\Commands\DiscoverCommand;
 use WhileSmart\LaravelPluginEngine\Console\Commands\EnableCommand;
@@ -23,6 +25,8 @@ class PluginServiceProvider extends ServiceProvider
      * @var array
      */
     protected $commands = [
+        CacheCommand::class,
+        ClearCommand::class,
         DisableCommand::class,
         DiscoverCommand::class,
         EnableCommand::class,

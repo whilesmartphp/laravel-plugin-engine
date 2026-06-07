@@ -35,6 +35,9 @@ class EnableCommand extends PluginCommand
             $this->info("Plugin [{$pluginName}] enabled successfully.");
 
             // Clear caches to ensure the plugin is immediately available
+            if ($this->pluginManager->pluginsAreCached()) {
+                $this->pluginManager->cachePlugins();
+            }
             $this->call('config:clear');
             $this->call('route:clear');
 
