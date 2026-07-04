@@ -15,7 +15,9 @@ use WhileSmart\LaravelPluginEngine\Console\Commands\InfoCommand;
 use WhileSmart\LaravelPluginEngine\Console\Commands\InstallCommand;
 use WhileSmart\LaravelPluginEngine\Console\Commands\ListCommand;
 use WhileSmart\LaravelPluginEngine\Logging\LevelFilteringLogger;
+use WhileSmart\LaravelPluginEngine\Services\ComposerRunner;
 use WhileSmart\LaravelPluginEngine\Services\PluginManager;
+use WhileSmart\LaravelPluginEngine\Services\SymfonyComposerRunner;
 
 class PluginServiceProvider extends ServiceProvider
 {
@@ -47,6 +49,8 @@ class PluginServiceProvider extends ServiceProvider
 
         $this->registerPluginManager();
         $this->registerCommands();
+
+        $this->app->bind(ComposerRunner::class, SymfonyComposerRunner::class);
     }
 
     /**

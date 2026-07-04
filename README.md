@@ -67,10 +67,37 @@ independent of the application's logging:
 - `plugin:info {id}` - Show information about a plugin
 - `plugin:enable {id}` - Enable a plugin
 - `plugin:disable {id}` - Disable a plugin
-- `plugin:install {package}` - Install a plugin
+- `plugin:install {package}` - Install a plugin from a Composer package, a repository URL, or a local path
 - `plugin:discover` - Discover and register all available plugins
 - `plugin:cache` - Compile discovered plugins into a cache file
 - `plugin:clear` - Remove the plugin cache file
+
+### Plugin dependencies
+
+When a plugin is installed from a URL or a local path, the engine reads the
+plugin's own `composer.json` and installs its `require` dependencies into the
+host application, so the plugin's classes are available at runtime.
+
+For hosts that embed several plugins, enable
+[`wikimedia/composer-merge-plugin`](https://github.com/wikimedia/composer-merge-plugin)
+so each plugin keeps owning its dependencies while Composer resolves them
+together into the single host `vendor/`:
+
+```jsonc
+// host composer.json
+"extra": {
+    "merge-plugin": {
+        "include": ["plugins/*/composer.json"]
+    }
+},
+"config": {
+    "allow-plugins": { "wikimedia/composer-merge-plugin": true }
+}
+```
+
+With this configured, installing a plugin runs a targeted `composer update`;
+otherwise the engine falls back to `composer require` for the plugin's
+dependencies.
 
 ### Caching
 
