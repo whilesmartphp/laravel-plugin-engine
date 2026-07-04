@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-07-04
+
+### Added
+- Installing a plugin now installs the plugin's own declared dependencies into the host application, so packages the plugin relies on are available at runtime instead of failing with class-not-found
+- Local directory paths are a supported install source: `plugin:install ./path/to/plugin` copies the plugin into place, alongside the existing package-name and repository-URL sources
+- Dependency installation integrates with `wikimedia/composer-merge-plugin` when the host enables it, and otherwise installs the plugin's requirements directly
+
 ## [1.1.0] - 2026-06-07
 
 ### Added
