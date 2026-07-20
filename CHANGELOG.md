@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-07-20
+
+### Changed
+- Update composer.json to support Laravel 12
+
 ## [1.2.0] - 2026-07-04
 
 ### Added
