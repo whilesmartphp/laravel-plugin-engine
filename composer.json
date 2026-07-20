@@ -3,7 +3,7 @@
   "description": "A flexible plugin engine for Laravel applications",
   "type": "library",
   "license": "proprietary",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "autoload": {
     "psr-4": {
       "WhileSmart\\LaravelPluginEngine\\": "src/"
